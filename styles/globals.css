@@ -3,12 +3,17 @@
   --text-purple-dark: rgba(79, 70, 229, 1);
   --text-black: rgba(17, 24, 39, 1);
   --text-white-100: rgba(229, 231, 235, 1);
+  --text-white-200: rgb(113, 130, 165);
 }
 
 * {
   box-sizing: border-box;
   padding: 0;
   margin: 0;
+}
+
+a{
+  text-decoration: none;
 }
 
 html,

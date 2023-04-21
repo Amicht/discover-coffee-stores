@@ -1,0 +1,2 @@
+
+export type StaticPath = Array<string | { params: { [key: string]: string } }>;
