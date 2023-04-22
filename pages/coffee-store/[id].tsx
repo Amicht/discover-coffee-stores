@@ -5,7 +5,10 @@ import styles from "../../styles/coffee-store.module.css";
 import Head from 'next/head';
 import Image from 'next/image';
 import cls from 'classnames';
-import { fetchCoffeeStores } from '@/lib/coffee-stores';
+import { fetchCoffeeStores, getDefaultCoffeeStorePhoto } from '@/lib/coffee-stores';
+import { useContext, useEffect, useState } from 'react';
+import { isEmpty } from '@/utils';
+import { StoreContext } from '@/store/store-context';
 
 
 export async function getStaticProps(staticProps:any) {
@@ -14,13 +17,7 @@ export async function getStaticProps(staticProps:any) {
   const coffeeStore = coffeeStoresData.find(cs => {
     return cs.id.toString() == params.id;
   })
-  if(!!coffeeStore){
-    return {props: {coffeeStore}}
-  }
-  return {
-    props: {
-      notFound: true}, 
-  }
+  return {props: {coffeeStore: coffeeStore? coffeeStore: {}}}
 }
 
 type StaticPath = Array<string | { params: { [key: string]: string } }>;
@@ -39,20 +36,43 @@ export async function getStaticPaths(): Promise<{paths:StaticPath, fallback:bool
   }
 }
 
-const CoffeeStore = (props:{coffeeStore:ICoffeeStore,notFound?:boolean}) => {
+const CoffeeStore = (initialProps:{coffeeStore:ICoffeeStore,notFound?:boolean}) => {
   const router = useRouter();
-  
-  if(router.isFallback){ return <div>Loading...</div> }
-  if(props.notFound){ return <div>404 ERROR</div> }
+  const {state:{coffeeStores}} = useContext(StoreContext);
+  const id = router.query.id;
+  const [coffeeStore, setCoffeeStore] = 
+    useState<ICoffeeStore>(initialProps.coffeeStore);
 
-  const { address,locality, name, imgUrl } = props.coffeeStore;
+  const dafaultCoffeeStorePhoto = getDefaultCoffeeStorePhoto();
+
   
   const handleUpvoteButton = () => {};
+
+
+  useEffect(() => {
+
+    console.log(initialProps.coffeeStore);
+
+    if(isEmpty(initialProps.coffeeStore)){
+      
+      if(coffeeStores.length > 0){
+        const coffeeStoreById = coffeeStores.find(cs => {
+          return cs.id.toString() == id;
+        });
+        if(coffeeStoreById){
+          setCoffeeStore(coffeeStoreById);
+        }
+      }
+    }
+  },[id])
+
+  if(router.isFallback){ return <div>Loading...</div> }
+  if(initialProps.notFound){ return <div>404 ERROR</div> }
 
   return (
     <div className={styles.layout}>
       <Head>
-        <title>{name}</title>
+        <title>{coffeeStore?.name}</title>
       </Head>
       <div className={styles.container}>
         <div className={styles.col1}>
@@ -62,15 +82,15 @@ const CoffeeStore = (props:{coffeeStore:ICoffeeStore,notFound?:boolean}) => {
             </Link>
           </div>
           <div className={styles.nameWrapper}>
-            <h1 className={styles.name}>{name}</h1>
+            <h1 className={styles.name}>{coffeeStore?.name}</h1>
           </div>
           <div className={styles.storeImgWrapper}>
             <Image
-              src={imgUrl}
+              src={coffeeStore?.imgUrl || dafaultCoffeeStorePhoto}
               width={600}
               height={360}
               className={styles.storeImg}
-              alt={name}
+              alt={coffeeStore?.name || "default photo image"}
             />
           </div>
         </div>
@@ -82,7 +102,7 @@ const CoffeeStore = (props:{coffeeStore:ICoffeeStore,notFound?:boolean}) => {
               src="/static/icons/places.svg" 
               width="24" 
               height="24" />
-            <p className={styles.text}>{address}</p>
+            <p className={styles.text}>{coffeeStore?.address}</p>
           </div>
           <div className={styles.iconWrapper}>
             <Image 
@@ -90,7 +110,7 @@ const CoffeeStore = (props:{coffeeStore:ICoffeeStore,notFound?:boolean}) => {
               src="/static/icons/nearMe.svg" 
               width="24" 
               height="24" />
-            <p className={styles.text}>{locality}</p>
+            <p className={styles.text}>{coffeeStore?.locality}</p>
           </div>
           <div className={styles.iconWrapper}>
             <Image 

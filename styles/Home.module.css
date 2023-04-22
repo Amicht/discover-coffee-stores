@@ -26,6 +26,10 @@
   z-index: 1;
 }
 
+.sectionWrapper{
+  margin-top: 5rem;
+}
+
 .cardLayout {
   display: grid;
   grid-template-columns: repeat(1, minmax(0, 1fr));

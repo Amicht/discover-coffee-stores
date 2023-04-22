@@ -4,7 +4,7 @@ import { IApiCoffeeStoreRes, ICoffeeStore } from "@/interfaces/ICoffeeStore";
 interface ReqParams{
     limit?:number, 
     query?:string,
-    ll?:string
+    latLong?:string
 }
 
 const getPlacesApiUrl = (params: ReqParams) => {
@@ -12,21 +12,22 @@ const getPlacesApiUrl = (params: ReqParams) => {
     const url = "https://api.foursquare.com/v3/places/search?";
     let query = "query=" + (params.query || "coffee");
     let limit = "limit=" + (params.limit || 30);
-    let ll = "ll=" + (params.ll || "32.082404%2C34.895666");
+    let ll = "ll=" + (params.latLong || "32.082404%2C34.895666");
     return `${url}${query}&${ll}&${limit}`;
 }
 
 const unsplash = createApi({
-  accessKey: process.env.UNSPLASH_ACCESS_KEY || "" ,
+  accessKey: process.env.NEXT_PUBLIC_UNSPLASH_ACCESS_KEY || "" 
 });
 
 const getCoffeeStorePhotos = async (): Promise<string[]> => {
 
-    const altImgUrl = "https://images.unsplash.com/photo-1504753793650-d4a2b783c15e?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=2000&q=80";
+    const altImgUrl = getDefaultCoffeeStorePhoto()
 
     const photos = await unsplash.search.getPhotos({
         query:"coffee shop",
-        perPage:30
+        perPage:40,
+        page:1
     })
 
     if(photos.response?.results){
@@ -39,9 +40,13 @@ const getCoffeeStorePhotos = async (): Promise<string[]> => {
 
 }
 
+export const getDefaultCoffeeStorePhoto = () => {
+    return "https://images.unsplash.com/photo-1504753793650-d4a2b783c15e?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=2000&q=80";
+}
+
 
 export const fetchCoffeeStores = async (params:ReqParams):Promise<ICoffeeStore[]> => {
-    const apiKey = process.env.PLACES_API_KEY || "";
+    const apiKey = process.env.NEXT_PUBLIC_PLACES_API_KEY || "";
     
     const options = {
         method: 'GET',
