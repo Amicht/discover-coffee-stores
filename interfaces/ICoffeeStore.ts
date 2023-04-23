@@ -12,9 +12,20 @@ export interface IApiCoffeeStoreRes{
 }
 
 export interface ICoffeeStore{
-    id: number;
+    id: string;
     name: string;
-    address: string,
-    locality: string,
-    imgUrl:string
+    address?: string,
+    locality?: string,
+    imgUrl:string,
+    voting: number
 }
+
+export interface ICoffeeStoreReq{
+    id: string;
+    name?: string;
+    address?: string,
+    locality?: string,
+    imgUrl?:string,
+    voting?: number
+}
+

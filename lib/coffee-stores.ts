@@ -12,7 +12,7 @@ const getPlacesApiUrl = (params: ReqParams) => {
     const url = "https://api.foursquare.com/v3/places/search?";
     let query = "query=" + (params.query || "coffee");
     let limit = "limit=" + (params.limit || 30);
-    let ll = "ll=" + (params.latLong || "32.082404%2C34.895666");
+    let ll = "ll=" + (params.latLong || "31.785123,35.208340");
     return `${url}${query}&${ll}&${limit}`;
 }
 
@@ -61,12 +61,15 @@ export const fetchCoffeeStores = async (params:ReqParams):Promise<ICoffeeStore[]
     const data = await fetch(getPlacesApiUrl(params), options)
     .then(response => response.json());
 
+    console.log("coffee-stores :", data.results);
+    
+
     return data.results.map((cs:IApiCoffeeStoreRes,idx:number) => {
         return {
             id:cs.fsq_id,
             name: cs.name,
-            address: cs.location.address,
-            locality: cs.location.locality,
+            address: cs.location.address || null,
+            locality: cs.location.locality || null,
             imgUrl: photos[idx] ||  photos[0] 
         }
     });

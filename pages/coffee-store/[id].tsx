@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { ICoffeeStore } from '@/interfaces/ICoffeeStore'
+import { ICoffeeStore, ICoffeeStoreReq } from '@/interfaces/ICoffeeStore'
 import styles from "../../styles/coffee-store.module.css";
 import Head from 'next/head';
 import Image from 'next/image';
@@ -48,25 +48,89 @@ const CoffeeStore = (initialProps:{coffeeStore:ICoffeeStore,notFound?:boolean}) 
   
   const handleUpvoteButton = () => {};
 
+  const createCoffeeStore = async(newCoffeeStore:ICoffeeStoreReq) => {
+    try{
+      const { 
+        id,address,imgUrl,locality,name,voting
+      } = newCoffeeStore;
+
+      const dbCoffeeStore = await fetch("/api/createCoffeeStore",{
+        method:"POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          id,
+          address,
+          locality,
+          imgUrl,
+          name,
+          voting: voting || 0
+        })
+      })
+      .then(res => res.json());
+
+      return dbCoffeeStore;
+
+    }catch(err){
+      console.error("error :", err)
+    }
+  }
 
   useEffect(() => {
-
-    console.log(initialProps.coffeeStore);
 
     if(isEmpty(initialProps.coffeeStore)){
       
       if(coffeeStores.length > 0){
         const coffeeStoreById = coffeeStores.find(cs => {
-          return cs.id.toString() == id;
+          return cs.id == id;
         });
+        
         if(coffeeStoreById){
-          setCoffeeStore(coffeeStoreById);
+          console.log(coffeeStoreById);
+          
+          createCoffeeStore(coffeeStoreById)
+            .then((res:ICoffeeStore) => {
+              console.log("response from api", res);
+              setCoffeeStore(res);
+            })
+        }
+        else{
+          if(id){
+            createCoffeeStore({id:id.toString()})
+              .then((res:ICoffeeStore) => {
+                console.log("response from api", res);
+                setCoffeeStore(res);
+              })
+          }
+        }
+      }
+      else{
+        if(id){
+          createCoffeeStore({id:id.toString()})
+            .then((res:ICoffeeStore) => {
+              console.log("response from api", res);
+              setCoffeeStore(res);
+            })
         }
       }
     }
-  },[id])
+    else{
+        const {voting} = initialProps.coffeeStore;
+        if(!voting && (voting !== 0)){
+          createCoffeeStore(initialProps.coffeeStore)
+            .then((res:ICoffeeStore) => {
+              console.log("response from api", res);
+              setCoffeeStore(res);
+            })
+        }
+    }
+  },[id, initialProps.coffeeStore])
 
-  if(router.isFallback){ return <div>Loading...</div> }
+  if(router.isFallback){ return <div className={styles.loadingWrapper}>
+    <div className={styles.loadingText}>Loading...</div>
+  </div> };
+
   if(initialProps.notFound){ return <div>404 ERROR</div> }
 
   return (
@@ -96,29 +160,29 @@ const CoffeeStore = (initialProps:{coffeeStore:ICoffeeStore,notFound?:boolean}) 
         </div>
 
         <div className={cls( "glass",styles.col2)}>
-          <div className={styles.iconWrapper}>
+        {coffeeStore?.address && <div className={styles.iconWrapper}>
             <Image 
               alt='adress-icon' 
               src="/static/icons/places.svg" 
               width="24" 
               height="24" />
             <p className={styles.text}>{coffeeStore?.address}</p>
-          </div>
-          <div className={styles.iconWrapper}>
+          </div>}
+          {coffeeStore?.locality && <div className={styles.iconWrapper}>
             <Image 
               alt='adress-icon' 
               src="/static/icons/nearMe.svg" 
               width="24" 
               height="24" />
             <p className={styles.text}>{coffeeStore?.locality}</p>
-          </div>
+          </div>}
           <div className={styles.iconWrapper}>
             <Image 
               alt='star-icon' 
               src="/static/icons/star.svg" 
               width="24" 
               height="24" />
-            <p className={styles.text}>1</p>
+            <p className={styles.text}>{coffeeStore?.voting}</p>
           </div>
 
           <button className={styles.upvoteButton} onClick={handleUpvoteButton}>

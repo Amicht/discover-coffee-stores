@@ -16,7 +16,6 @@ export async function getStaticProps() {
 
   return {
     props: { coffeeStores }, 
-    // will be passed to the page component as props
   }
 }
 
@@ -32,15 +31,16 @@ export default function Home(props:{coffeeStores:ICoffeeStore[]}) {
 
   const handleOnBannerBtnClick = () => {
     handleTrackLocation();
-    console.log({locationErrorMsg});
   }  
 
   useEffect(() => {
     async function setCoffeeStoresByLocation() {
       if(!!latLong){
         try{
-          const fetchedCoffeeStores = await fetchCoffeeStores({limit:30,latLong});
-          reducer.saveCoffeeStores(fetchedCoffeeStores);
+          // const ll ="31.785123,35.208340"
+          const reqUrl = `/api/getCoffeeStoresByLocation?limit=30&latLong=${latLong}`;
+          const fetchedCoffeeStores = await fetch(reqUrl).then(res => res.json())
+          reducer.saveCoffeeStores(fetchedCoffeeStores.coffeeStores);
         }
         catch(error:any) {
           setCoffeeStoresError(error.message)
@@ -87,7 +87,7 @@ export default function Home(props:{coffeeStores:ICoffeeStore[]}) {
         </div>}
         {props.coffeeStores.length > 0 && 
         <div className={styles.sectionWrapper}>
-          <h2 className={styles.heading2}>Petah-Tikva Stores</h2>
+          <h2 className={styles.heading2}>Jerusalem Coffee Stores</h2>
           <div className={styles.cardLayout}>
             {props.coffeeStores.map((cs) => 
               <Card 
