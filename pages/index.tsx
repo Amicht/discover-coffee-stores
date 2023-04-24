@@ -9,7 +9,7 @@ import { useContext, useEffect, useState } from 'react'
 import { StoreContext } from '@/store/store-context';
 import Loading from '@/components/Loading'
 import StoresList from '@/components/StoresList'
-import styles from '@/styles/home.module.css'
+import styles from '@/styles/home.module.css' assert { type: 'css' };
 
 export async function getStaticProps() {
   const coffeeStores = await fetchCoffeeStores({limit:6});

@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { ICoffeeStore, ICoffeeStoreReq } from '@/interfaces/ICoffeeStore'
-import styles from "../../styles/coffee-store.module.css";
+import styles from "../../styles/coffee-store.module.css" assert { type: 'css' };
 import Head from 'next/head';
 import Image from 'next/image';
 import cls from 'classnames';
