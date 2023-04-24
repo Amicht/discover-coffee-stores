@@ -1,7 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import React from 'react'
-import styles from './card.module.css' assert { type: 'css' };
+import styles from './card.module.css'
 import cls from 'classnames';
 
 interface Props{

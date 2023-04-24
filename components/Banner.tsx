@@ -1,4 +1,4 @@
-import styles from './banner.module.css' assert { type: 'css' };
+import styles from './banner.module.css'
 
 interface Props{
     btnText:string 

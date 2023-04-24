@@ -1,5 +1,4 @@
-import React from 'react'
-import styles from './storesList.module.css' assert { type: 'css' };
+import styles from './storesList.module.css'
 import { ICoffeeStore } from '@/interfaces/ICoffeeStore'
 import Card from './card'
 

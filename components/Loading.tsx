@@ -1,5 +1,4 @@
-import React from 'react'
-import styles from './loading.module.css' assert { type: 'css' };
+import styles from './loading.module.css'
 
 const Loading = () => {
   return (
