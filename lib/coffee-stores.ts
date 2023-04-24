@@ -18,7 +18,8 @@ const getPlacesApiUrl = (params: ReqParams) => {
     let query = "query=" + (params.query || SEARCH_WORDS.placesAPI);
     let limit = "limit=" + (params.limit || 30);
     let ll = "ll=" + (params.latLong || "31.785123,35.208340");
-    return `${url}${query}&${ll}&${limit}`;
+    let radius = "radius=15000";
+    return `${url}${query}&${ll}&${limit}&${radius}`;
 }
 
 const unsplash = createApi({

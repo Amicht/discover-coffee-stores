@@ -1,7 +1,7 @@
 import Head from 'next/head'
 import Image from 'next/image'
 
-import styles from '@/styles/home.module.css'
+import styles from '../styles/home.module.css'
 import Banner from '@/components/Banner'
 import { ICoffeeStore } from '@/interfaces/ICoffeeStore'
 import { fetchCoffeeStores } from '@/lib/coffee-stores'
