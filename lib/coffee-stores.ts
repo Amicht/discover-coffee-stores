@@ -7,10 +7,15 @@ interface ReqParams{
     latLong?:string
 }
 
+const SEARCH_WORDS = {
+    placesAPI: "coffee",
+    photos: "coffee shop"
+}
+
 const getPlacesApiUrl = (params: ReqParams) => {
 
     const url = "https://api.foursquare.com/v3/places/search?";
-    let query = "query=" + (params.query || "coffee");
+    let query = "query=" + (params.query || SEARCH_WORDS.placesAPI);
     let limit = "limit=" + (params.limit || 30);
     let ll = "ll=" + (params.latLong || "31.785123,35.208340");
     return `${url}${query}&${ll}&${limit}`;
@@ -25,7 +30,7 @@ const getCoffeeStorePhotos = async (): Promise<string[]> => {
     const altImgUrl = getDefaultCoffeeStorePhoto()
 
     const photos = await unsplash.search.getPhotos({
-        query:"coffee shop",
+        query: SEARCH_WORDS.photos,
         perPage:40,
         page:1
     })
@@ -61,10 +66,11 @@ export const fetchCoffeeStores = async (params:ReqParams):Promise<ICoffeeStore[]
     const data = await fetch(getPlacesApiUrl(params), options)
     .then(response => response.json());
 
-    console.log("coffee-stores :", data.results);
     
 
-    return data.results.map((cs:IApiCoffeeStoreRes,idx:number) => {
+    return data.results
+    .filter(((store:IApiCoffeeStoreRes) => !!store.location.address))
+    .map((cs:IApiCoffeeStoreRes,idx:number) => {
         return {
             id:cs.fsq_id,
             name: cs.name,

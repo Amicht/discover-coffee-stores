@@ -34,7 +34,7 @@
 }
 
 .name {
-    color: var(--text-white-100);
+    color: var(--text-purple-dark);
     font-size: 2.25rem /* 36px */;
     line-height: 2.5rem /* 40px */;
     text-overflow: ellipsis;
@@ -53,8 +53,8 @@
       0 25px 50px -12px rgba(0, 0, 0, 0.25);
   
     border-radius: 0.75rem /* 12px */;
-    max-width: 100%;
     height: auto;
+    max-width: 100%;
     max-height: 65vh;
     vertical-align: middle;
     border-style: none;
@@ -104,8 +104,13 @@
 }
 
 .upvoteButton:hover {
-    background-color: var(--text-purple);
-  }
+  background-color: var(--text-purple);
+}
+.upvoteButton:disabled{
+  background-color: var(--text-purple-dark);
+  color: rgb(198, 196, 196);
+  cursor: auto;
+}
   
   @media (min-width: 1024px) {
     .container {

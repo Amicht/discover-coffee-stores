@@ -8,12 +8,14 @@ interface Props{
     name:string
     imgUrl:string
     href:string
+    onCardClick: () => void
 }
 
 const Card = (props:Props) => {
   return (
     <Link 
         href={props.href} 
+        onClick={props.onCardClick}
         className={styles.cardLink}>
 
         <div className={cls("glass",styles.container)}>

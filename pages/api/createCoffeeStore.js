@@ -1,4 +1,4 @@
-import { getMinifiedRecords, table } from '@/lib/airtable';
+import { getMinifiedRecords, getRecordByFilter, table } from '@/lib/airtable';
 
 
 
@@ -7,26 +7,24 @@ const createCoffeeStore = async (req,res) => {
     try{
         if(req.method === "POST"){
             const newCofeeStore = req.body;
+            const {id} = req.body;
     
             // required fields validation
-            if(!req.body.id){
+            if(!id){
                 res.status(400).json({message: "Id is missing"});
                 return;
             };
             
             // get coffee store by id (create new if doesnt exist)
-            const findCoffeeStoreRecords = await table.select({
-                filterByFormula: `id="${newCofeeStore.id}"`
-            }).firstPage();
+            const records = await getRecordByFilter(id);
             
-            if(findCoffeeStoreRecords.length !== 0){
-                const records = getMinifiedRecords(findCoffeeStoreRecords);
+            if(records.length !== 0){
                 res.status(200).json(records[0]);
             }
             else{
     
                 if(!req.body.name){
-                    res.status(400).json({message: "Name is missing"});
+                    res.status(400).json({message: "Failed to create new store: 'name' is missing"});
                     return;
                 };
                 const createdCoffeeStore = await table.create([
@@ -46,7 +44,6 @@ const createCoffeeStore = async (req,res) => {
         }
     }
     catch(err){
-        console.error("error finding or creating a store", err);
         res.status(500).json({message: "error finding or creating a store"});
     }
 }

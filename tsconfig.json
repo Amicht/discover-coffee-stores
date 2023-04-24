@@ -18,6 +18,6 @@
       "@/*": ["./*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "pages/coffee-store/[id].tsx", "pages/api/createCoffeeStore.js"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "pages/coffee-store/[id].tsx", "pages/api/createCoffeeStore.js", "pages/api/getCoffeeStoreById.js"],
   "exclude": ["node_modules"]
 }

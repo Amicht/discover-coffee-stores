@@ -9,6 +9,9 @@ import { fetchCoffeeStores, getDefaultCoffeeStorePhoto } from '@/lib/coffee-stor
 import { useContext, useEffect, useState } from 'react';
 import { isEmpty } from '@/utils';
 import { StoreContext } from '@/store/store-context';
+import useSWR from 'swr'
+import { fetcher } from '@/lib/swr';
+import Loading from '@/components/Loading';
 
 
 export async function getStaticProps(staticProps:any) {
@@ -36,17 +39,55 @@ export async function getStaticPaths(): Promise<{paths:StaticPath, fallback:bool
   }
 }
 
+
+
 const CoffeeStore = (initialProps:{coffeeStore:ICoffeeStore,notFound?:boolean}) => {
   const router = useRouter();
-  const {state:{coffeeStores}} = useContext(StoreContext);
   const id = router.query.id;
-  const [coffeeStore, setCoffeeStore] = 
-    useState<ICoffeeStore>(initialProps.coffeeStore);
-
   const dafaultCoffeeStorePhoto = getDefaultCoffeeStorePhoto();
 
-  
-  const handleUpvoteButton = () => {};
+  const {state:{coffeeStores}} = useContext(StoreContext);
+  const [coffeeStore, setCoffeeStore] = useState<ICoffeeStore>(initialProps.coffeeStore);
+
+  const [isVoting, setIsVoting] = useState(false);
+  const [votingCount, setVotingCount] = useState<number>(0);
+  const {data,error,isLoading} = useSWR(id, fetcher);
+
+  useEffect(() => {
+    if(data && data.id){
+      setCoffeeStore(data);
+      setVotingCount(data.voting);
+    }
+  },[data]);
+
+  const handleUpvoteButton = async () => {
+    try{
+      setIsVoting(true);
+
+      const dbCoffeeStore = await fetch("/api/favouriteCoffeeStoreById",{
+        method:"PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id })
+      })
+      .then(res => res.json());
+      
+      
+      if(dbCoffeeStore){
+        setVotingCount(dbCoffeeStore.voting)
+      }
+      setIsVoting(false);
+      
+      return dbCoffeeStore;
+      
+    }catch(err){
+      setIsVoting(false);
+      // error upvoting coffee-store
+      console.error("error upvoting coffee-store:", err)
+    }
+  };
+
 
   const createCoffeeStore = async(newCoffeeStore:ICoffeeStoreReq) => {
     try{
@@ -70,87 +111,70 @@ const CoffeeStore = (initialProps:{coffeeStore:ICoffeeStore,notFound?:boolean}) 
       })
       .then(res => res.json());
 
+      setCoffeeStore(dbCoffeeStore)
+      // setVotingCount(dbCoffeeStore.voting || 0)
+      setIsVoting(false);
+
+
       return dbCoffeeStore;
 
     }catch(err){
+      // error geting or creating coffee-store
       console.error("error :", err)
     }
   }
 
   useEffect(() => {
-
+    
+    // SSR page check
     if(isEmpty(initialProps.coffeeStore)){
       
-      if(coffeeStores.length > 0){
-        const coffeeStoreById = coffeeStores.find(cs => {
-          return cs.id == id;
+      if (coffeeStores.length > 0) {
+        const findCoffeeStoreById = coffeeStores.find((coffeeStore) => {
+          return coffeeStore.id.toString() === id; //dynamic id
         });
-        
-        if(coffeeStoreById){
-          console.log(coffeeStoreById);
-          
-          createCoffeeStore(coffeeStoreById)
-            .then((res:ICoffeeStore) => {
-              console.log("response from api", res);
-              setCoffeeStore(res);
-            })
-        }
-        else{
-          if(id){
-            createCoffeeStore({id:id.toString()})
-              .then((res:ICoffeeStore) => {
-                console.log("response from api", res);
-                setCoffeeStore(res);
-              })
-          }
+        if(findCoffeeStoreById){
+          createCoffeeStore(findCoffeeStoreById);
         }
       }
-      else{
-        if(id){
-          createCoffeeStore({id:id.toString()})
-            .then((res:ICoffeeStore) => {
-              console.log("response from api", res);
-              setCoffeeStore(res);
-            })
-        }
+    } else {
+      // SSG
+      createCoffeeStore(initialProps.coffeeStore);
       }
-    }
-    else{
-        const {voting} = initialProps.coffeeStore;
-        if(!voting && (voting !== 0)){
-          createCoffeeStore(initialProps.coffeeStore)
-            .then((res:ICoffeeStore) => {
-              console.log("response from api", res);
-              setCoffeeStore(res);
-            })
-        }
-    }
+
   },[id, initialProps.coffeeStore])
 
-  if(router.isFallback){ return <div className={styles.loadingWrapper}>
-    <div className={styles.loadingText}>Loading...</div>
+  if(router.isFallback || !coffeeStore || 
+    !coffeeStore.id || error || initialProps.notFound){ 
+    return <div className={styles.loadingWrapper}>
+      {router.isFallback || !coffeeStore || !coffeeStore.id? <Loading />: null}
+      {initialProps.notFound? <div>404 ERROR</div>:null}
+      {error? <div>Something went wrong...</div>:null}
   </div> };
-
-  if(initialProps.notFound){ return <div>404 ERROR</div> }
 
   return (
     <div className={styles.layout}>
+
       <Head>
         <title>{coffeeStore?.name}</title>
       </Head>
+
       <div className={styles.container}>
         <div className={styles.col1}>
+
           <div className={styles.backToHomeLink}>
             <Link href="/">
             <span style={{paddingRight:"0.25rem"}}>◀</span> Back to home
             </Link>
           </div>
+
           <div className={styles.nameWrapper}>
             <h1 className={styles.name}>{coffeeStore?.name}</h1>
           </div>
           <div className={styles.storeImgWrapper}>
             <Image
               src={coffeeStore?.imgUrl || dafaultCoffeeStorePhoto}
+              priority={true}
               width={600}
               height={360}
               className={styles.storeImg}
@@ -164,29 +188,32 @@ const CoffeeStore = (initialProps:{coffeeStore:ICoffeeStore,notFound?:boolean}) 
             <Image 
               alt='adress-icon' 
               src="/static/icons/places.svg" 
-              width="24" 
-              height="24" />
+              width={24} 
+              height={24} />
             <p className={styles.text}>{coffeeStore?.address}</p>
           </div>}
           {coffeeStore?.locality && <div className={styles.iconWrapper}>
             <Image 
               alt='adress-icon' 
               src="/static/icons/nearMe.svg" 
-              width="24" 
-              height="24" />
+              width={24} 
+              height={24} />
             <p className={styles.text}>{coffeeStore?.locality}</p>
           </div>}
           <div className={styles.iconWrapper}>
             <Image 
               alt='star-icon' 
               src="/static/icons/star.svg" 
-              width="24" 
-              height="24" />
-            <p className={styles.text}>{coffeeStore?.voting}</p>
+              width={24} 
+              height={24} />
+            <p className={styles.text}>{votingCount}</p>
           </div>
 
-          <button className={styles.upvoteButton} onClick={handleUpvoteButton}>
-            Up vote!
+          <button 
+            disabled={isVoting} 
+            className={styles.upvoteButton} 
+            onClick={handleUpvoteButton}>
+            {isVoting? "Voting..." : "Up vote!"}
           </button>
 
         </div>

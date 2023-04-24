@@ -24,11 +24,13 @@ export const StoreProvider = (props:{children:React.ReactNode}) => {
     const newInitialCtxt:IStoreContext = {
         reducer:{
         saveCoffeeStores: (newCoffeeStores:ICoffeeStore[]) => {
-            setCoffeeStores(newCoffeeStores)
+            const mappedCoffeeStores = newCoffeeStores
+            .map(cs => {return {...cs, voting: cs.voting? cs.voting: 0}})
+            setCoffeeStores(mappedCoffeeStores)
         },
         saveLatLong: (newLocation:string) => { 
             setLatLong(newLocation) 
-        }
+            }
         },
         state:{
         latLong,
