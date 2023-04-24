@@ -1,7 +1,6 @@
 import Head from 'next/head'
 import Image from 'next/image'
 
-import styles from '../styles/home.module.css'
 import Banner from '@/components/Banner'
 import { ICoffeeStore } from '@/interfaces/ICoffeeStore'
 import { fetchCoffeeStores } from '@/lib/coffee-stores'
@@ -10,6 +9,7 @@ import { useContext, useEffect, useState } from 'react'
 import { StoreContext } from '@/store/store-context';
 import Loading from '@/components/Loading'
 import StoresList from '@/components/StoresList'
+import styles from '@/styles/home.module.css'
 
 export async function getStaticProps() {
   const coffeeStores = await fetchCoffeeStores({limit:6});
