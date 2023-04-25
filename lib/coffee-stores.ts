@@ -68,9 +68,12 @@ export const fetchCoffeeStores = async (params:ReqParams):Promise<ICoffeeStore[]
     .then(response => response.json());
 
     
+    if(!data || !data.results){
+        return [];
+    }
 
     return data.results
-    .filter(((store:IApiCoffeeStoreRes) => !!store.location.address))
+    .filter(((store:IApiCoffeeStoreRes) => (!!store.location && !!store.location.address)))
     .map((cs:IApiCoffeeStoreRes,idx:number) => {
         return {
             id:cs.fsq_id,
