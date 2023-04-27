@@ -20,6 +20,8 @@ export default function Home(props:{coffeeStores:ICoffeeStore[]}) {
 
   const {state:{latLong,coffeeStores},reducer} = useContext(StoreContext);
   const [isLoading,setIsLoading] = useState(false);
+  const metaDescription = "Get coffee stores nearby and vote for your favourite. My first Next.js app, as part of a Udemy course by Ankita Kulkarni."
+
 
   const { 
     handleTrackLocation, 
@@ -55,6 +57,7 @@ export default function Home(props:{coffeeStores:ICoffeeStore[]}) {
       <Head>
         <title>Coffee Connoisseur</title>
         <link rel="icon" href="/favicon.ico" />
+        <meta name="description" content={metaDescription} />
       </Head>
       <main className={styles.main}>
 

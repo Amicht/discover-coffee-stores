@@ -157,6 +157,9 @@ const CoffeeStore = (initialProps:{coffeeStore:ICoffeeStore,notFound?:boolean}) 
 
       <Head>
         <title>{coffeeStore?.name}</title>
+        <meta 
+          name="description" 
+          content={`${coffeeStore?.name? coffeeStore?.name+",":""} coffee-store location and votings`} />
       </Head>
 
       <div className={styles.container}>
