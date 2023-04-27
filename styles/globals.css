@@ -22,12 +22,21 @@ body {
   overflow-x: hidden;
 }
 
-body {
-  color: rgb(var(--foreground-rgb));
-  background: url("/static/background.png");
+.backgroundImg{
+  position: fixed;
+  top:0;
+  left:0;
+  width: 100vw;
+  z-index: -1;
+  object-fit: fill;
+
   background-position: 50%;
   background-repeat: no-repeat;
   background-size: cover;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
   color: rgb(10, 10, 92);
   height: fit-content;
   min-height: 100vh;

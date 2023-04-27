@@ -1,4 +1,5 @@
 import { Html, Head, Main, NextScript } from 'next/document'
+import Image from 'next/image'
 
 export default function Document() {
 
@@ -21,6 +22,12 @@ export default function Document() {
       </Head>
       <body >
         <Main />
+        <Image 
+          className='backgroundImg'
+          src="/static/background.png"
+          alt='background-color'
+          width={1000}
+          height={1000} />
         <NextScript />
       </body>
     </Html>
